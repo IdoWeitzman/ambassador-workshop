@@ -3,6 +3,8 @@ import wixExpressCsrf from '@wix/wix-express-csrf';
 import wixExpressRequireHttps from '@wix/wix-express-require-https';
 import { hot } from 'bootstrap-hot-loader';
 import WixNodeI18nCache from 'wix-node-i18n-cache';
+import { NodeWorkshopScalaApp } from '@wix/ambassador-node-workshop-scala-app/rpc';
+import bodyParser from 'body-parser';
 
 // caches translation files and serves them per request
 // https://github.com/wix-private/wix-node-i18n-cache
@@ -18,6 +20,18 @@ const localI18NCache = new WixNodeI18nCache({
 export default hot(module, (app, context) => {
   // We load the already parsed ERB configuration (located at /templates folder).
   const config = context.config.load('ambassador-workshop');
+  const commentsService = NodeWorkshopScalaApp().CommentsService();
+
+  app.get('/my_api/comments', async (req, res) => {
+    const comments = await commentsService(req.aspects).fetch(req.query.siteId);
+    res.send(comments);
+  });
+
+  app.post('/my_api/comments', bodyParser.json(), async (req, res) => {
+    await commentsService(req.aspects).add(req.query.siteId, req.body);
+
+    res.end();
+  });
 
   // Attach CSRF protection middleware. See
   // https://github.com/wix-platform/wix-node-platform/tree/master/express/wix-express-csrf.

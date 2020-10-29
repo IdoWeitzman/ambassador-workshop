@@ -7,5 +7,6 @@ bootstrap()
   .use(require('@wix/wix-bootstrap-hadron'))
   // https://github.com/wix-private/fed-infra/tree/master/wix-bootstrap-renderer
   .use(require('@wix/wix-bootstrap-renderer'))
+  .use(require('@wix/ambassador/runtime/rpc'))
   .express('./dist/server')
   .start();
